@@ -4,20 +4,30 @@ const imagesContainer = document.querySelector('.images-container')
 const saveConfirmed = document.querySelector('.save-confirmed')
 const loader = document.querySelector('.loader')
 
-
-
 // NASA API
 const count = 10
-const apiKey = 'DEMO_KEY'
+const apiKey = 'tABCa5YlTV6EgKN7L2qljbUyFfak5t7vDk0g1ndA'
 const apiUrl = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}&count=${count}`
 
 let resultsArray = []
 let favorites = {} // Empty object because it's more efficient to delete by keys than by looping through an array
 
+function showContent(page) {
+  window.scrollTo({ top: 0, behavior: 'instant' }) // always start page from top, even when clicking 'Load More'
+  if (page === 'results') {
+    resultsNav.classList.remove('hidden')
+    favoritesNav.classList.add('hidden')
+  } else {
+    resultsNav.classList.add('hidden')
+    favoritesNav.classList.remove('hidden')
+  }
+  loader.classList.add('hidden')
+}
+
 // Separated code in order to switch between displaying API data or data saved in Favorites
 function createDOMNodes(page) {
   const currentArray = page === 'results' ? resultsArray : Object.values(favorites)
-  console.log('Current Array', page, currentArray)
+  // console.log('Current Array', page, currentArray)
   currentArray.forEach((result) => { // Referring to each API parameter as result
     // Card Container
     const card = document.createElement('div')
@@ -79,25 +89,28 @@ function updateDOM(page) {
   // Get Favorites from localStorage if any are saved
   if (localStorage.getItem('nasaFavorites')) {
     favorites = JSON.parse(localStorage.getItem('nasaFavorites'))
-    console.log('favorites in localStorage', favorites)
+    // console.log('favorites in localStorage', favorites)
   }
   imagesContainer.textContent = ''
   createDOMNodes(page)
+  showContent(page)
 }
 
 // Fetch 10 images from the NASA API
 async function getNasaPictures() {
+  // Show the loader
+  loader.classList.remove('hidden')
   try {
     const response = await fetch(apiUrl)
     resultsArray = await response.json()
     // console.log(resultsArray)
-    updateDOM('favorites')
+    updateDOM('results')
   } catch (error) {
     // Catch Error Here
   }
 }
 
-// Add result to Favorites
+// Add Item to Favorites
 function saveFavorite(itemUrl) {
   // console.log(itemUrl)
   // Loop through Results Array to select Favorite
