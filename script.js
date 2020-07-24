@@ -12,14 +12,15 @@ const apiKey = 'DEMO_KEY'
 const apiUrl = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}&count=${count}`
 
 let resultsArray = []
+let favorites = {} // Empty object because it's more efficient to delete by keys than by looping through an array
 
 // Generate the html that will hold the data from the NASA images API
 function updateDOM() {
-  resultsArray.forEach((result) => {
+  resultsArray.forEach((result) => { // Referring to each API parameter as result
     // Card Container
     const card = document.createElement('div')
     card.classList.add('card') // Add this class to the div created
-    // Link to wrap the image
+    // HD Image - Link to wrap the image - clicking the main lower-res image will open a new tab showing the HD image
     const link = document.createElement('a')
     link.href = result.hdurl // NASA API has a hdurl parameter
     link.title = 'View Full Image' // Info when hovering on image
@@ -37,10 +38,11 @@ function updateDOM() {
     const cardTitle = document.createElement('h5')
     cardTitle.classList.add('card-title')
     cardTitle.textContent = result.title // NASA API has a title parameter
-    // Save Text
+    // Save Text - Add to Favorites
     const saveText = document.createElement('p')
     saveText.classList.add('clickable')
     saveText.textContent = 'Add To Favourites'
+    saveText.setAttribute('onclick', `saveFavorite('${result.url}')`) // Passing dynamic data into function saveFavorite
     // Card Text
     const cardText = document.createElement('p')
     cardText.textContent = result.explanation // NASA API has an explanation parameter
@@ -74,6 +76,25 @@ async function getNasaPictures() {
   } catch (error) {
     // Catch Error Here
   }
+}
+
+// Add result to Favorites
+function saveFavorite(itemUrl) {
+  // console.log(itemUrl)
+  // Loop through Results Array to select Favorite
+  resultsArray.forEach((item) => { // for every item in the array
+    if (item.url.includes(itemUrl) && !favorites[itemUrl]) { // if the url that the user clicks (Add To Fav) matches the url of the item that we're looping through
+      favorites[itemUrl] = item // add the whole of the itemUrl to the favorites object
+      console.log(JSON.stringify(favorites))
+      // Show Save Confirmation message
+      saveConfirmed.hidden = false
+      setTimeout(() => {
+        saveConfirmed.hidden = true
+      }, 2000)
+      // Set Favorites in localStorage
+      localStorage.setItem('nasaFavorites', JSON.stringify(favorites))
+    }
+  })
 }
 
 // On Load
