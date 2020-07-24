@@ -17,7 +17,7 @@ let favorites = {} // Empty object because it's more efficient to delete by keys
 // Separated code in order to switch between displaying API data or data saved in Favorites
 function createDOMNodes(page) {
   const currentArray = page === 'results' ? resultsArray : Object.values(favorites)
-  // console.log('Current Array', page, currentArray)
+  console.log('Current Array', page, currentArray)
   currentArray.forEach((result) => { // Referring to each API parameter as result
     // Card Container
     const card = document.createElement('div')
@@ -43,8 +43,13 @@ function createDOMNodes(page) {
     // Save Text - Add to Favorites
     const saveText = document.createElement('p')
     saveText.classList.add('clickable')
-    saveText.textContent = 'Add To Favourites'
-    saveText.setAttribute('onclick', `saveFavorite('${result.url}')`) // Passing dynamic data into function saveFavorite
+    if (page === 'results') {
+      saveText.textContent = 'Add To Favourites'
+      saveText.setAttribute('onclick', `saveFavorite('${result.url}')`) // Passing dynamic data into function saveFavorites
+    } else {
+      saveText.textContent = 'Remove Favourite'
+      saveText.setAttribute('onclick', `removeFavorite('${result.url}')`) // Passing dynamic data into function removeFavorite
+    }
     // Card Text
     const cardText = document.createElement('p')
     cardText.textContent = result.explanation // NASA API has an 'explanation' parameter
@@ -76,6 +81,7 @@ function updateDOM(page) {
     favorites = JSON.parse(localStorage.getItem('nasaFavorites'))
     console.log('favorites in localStorage', favorites)
   }
+  imagesContainer.textContent = ''
   createDOMNodes(page)
 }
 
@@ -108,6 +114,16 @@ function saveFavorite(itemUrl) {
       localStorage.setItem('nasaFavorites', JSON.stringify(favorites))
     }
   })
+}
+
+// Remove Item from Favourites
+function removeFavorite(itemUrl) {
+  if (favorites[itemUrl]) {
+    delete favorites[itemUrl]
+    // Set Favorites in localStorage
+    localStorage.setItem('nasaFavorites', JSON.stringify(favorites))
+    updateDOM('favorites')
+  }
 }
 
 // On Load
