@@ -4,7 +4,7 @@ const imagesContainer = document.querySelector('.images-container')
 const saveConfirmed = document.querySelector('.save-confirmed')
 const loader = document.querySelector('.loader')
 
-// NASA API
+// Global Varaibles
 const count = 10
 const apiKey = 'tABCa5YlTV6EgKN7L2qljbUyFfak5t7vDk0g1ndA'
 const apiUrl = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}&count=${count}`
@@ -14,6 +14,7 @@ let favorites = {} // Empty object because it's more efficient to delete by keys
 
 function showContent(page) {
   window.scrollTo({ top: 0, behavior: 'instant' }) // always start page from top, even when clicking 'Load More'
+  loader.classList.add('hidden')
   if (page === 'results') {
     resultsNav.classList.remove('hidden')
     favoritesNav.classList.add('hidden')
@@ -21,13 +22,14 @@ function showContent(page) {
     resultsNav.classList.add('hidden')
     favoritesNav.classList.remove('hidden')
   }
-  loader.classList.add('hidden')
 }
 
 // Separated code in order to switch between displaying API data or data saved in Favorites
 function createDOMNodes(page) {
   const currentArray = page === 'results' ? resultsArray : Object.values(favorites)
   // console.log('Current Array', page, currentArray)
+  // loader.classList.add('hidden')
+
   currentArray.forEach((result) => { // Referring to each API parameter as result
     // Card Container
     const card = document.createElement('div')
@@ -98,8 +100,7 @@ function updateDOM(page) {
 
 // Fetch 10 images from the NASA API
 async function getNasaPictures() {
-  // Show the loader
-  loader.classList.remove('hidden')
+  loader.classList.remove('hidden')    // Show the loader
   try {
     const response = await fetch(apiUrl)
     resultsArray = await response.json()
@@ -110,7 +111,7 @@ async function getNasaPictures() {
   }
 }
 
-// Add Item to Favorites
+// Add Item to Favorites (loadlstorage)
 function saveFavorite(itemUrl) {
   // console.log(itemUrl)
   // Loop through Results Array to select Favorite
